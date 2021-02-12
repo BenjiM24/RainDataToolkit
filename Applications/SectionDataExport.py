@@ -28,7 +28,7 @@ def createRequiredSubfolders(zipRequired, crossRefsrequired, saveLocation, suppl
 
 def saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired):
     sections = []
-
+    print('Attempting to save sections')
     pbar = tqdm(sectionCodes, position=0, leave=True)
     for section in tqdm(pbar):
         try:
