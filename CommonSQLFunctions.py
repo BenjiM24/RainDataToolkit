@@ -3,9 +3,12 @@ import urllib
 from sqlalchemy import create_engine
 import pyodbc
 import pandas as pd
+import os
+
+root_dir = os.path.dirname(os.path.abspath(__file__))
 
 Config = configparser.ConfigParser()
-Config.read(r'Z:\Software\RainDataToolkit\config.ini')
+Config.read(os.path.join(root_dir,'config.ini'))
 
 driver = Config.get('CoreContext', 'driver')
 host = Config.get('CoreContext', 'host')
