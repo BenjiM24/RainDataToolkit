@@ -4,6 +4,7 @@ import pandas as pd
 from os.path import isfile, join
 import xlsxwriter
 from PIL import Image
+import datetime
 
 def get_bool(prompt):
     while True:
@@ -34,13 +35,15 @@ def getFilePathInput(requestMessage):
 
 def saveDataInExcel(saveLocation, filename, df):
     fileSavePath = saveLocation + '\\' + filename + '.xlsx'
+
     writer = pd.ExcelWriter(fileSavePath, engine='xlsxwriter')
 
-    df.to_excel(writer, sheet_name=filename, startrow=1, header=False, index=False)
+    df = df_column_uniquify(df)
+    df.to_excel(writer, sheet_name='Sheet1', startrow=1, header=False, index=False)
 
     # Get the xlsxwriter workbook and worksheet objects.
     workbook = writer.book
-    worksheet = writer.sheets[filename]
+    worksheet = writer.sheets['Sheet1']
 
     # Get the dimensions of the dataframe.
     (max_row, max_col) = df.shape
@@ -97,3 +100,23 @@ def resizeImage(filePath):
     img = Image.open(filePath)
     new_img = img.resize((600, 400))
     new_img.save(filePath, "JPEG", optimize=True)
+
+def getTimeStamp():
+    return datetime.datetime.now().strftime('%d-%m-%Y %H%M%S')
+
+
+def df_column_uniquify(df):
+    df_columns = df.columns
+    new_columns = []
+    for item in df_columns:
+        newitem = item
+        counter = 0
+        while any(newitem.lower() == val.lower() for val in new_columns):
+            #how many times has this already been added:
+            counter += 1
+            newitem = "{}_{}".format(item, counter)
+        new_columns.append(newitem)
+    df.columns = new_columns
+    return df
+
+

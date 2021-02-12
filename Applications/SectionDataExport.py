@@ -11,7 +11,7 @@ from tqdm import tqdm
 
 def createRequiredSubfolders(zipRequired, crossRefsrequired, saveLocation, supplierName, auditId):
 
-    parentFolder = supplierName + ' - ' + str(auditId) + ' - ' + datetime.datetime.now().strftime('%d-%m-%Y %H%M%S')
+    parentFolder = supplierName + ' - ' + str(auditId) + ' - ' + cf.getTimeStamp()
 
     saveLocation = saveLocation + '\\' + parentFolder
 
