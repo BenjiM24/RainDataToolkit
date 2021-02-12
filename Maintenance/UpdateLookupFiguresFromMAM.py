@@ -19,6 +19,6 @@ query = csf.restoreDatabase('vrm', latest_file, 'VRM_Log', 'VRM_Data')
 if cf.get_bool('Please run the following SQL statement on 192.168.0.32:'
             f'\n{cf.bcolors.OKBLUE}{query}{cf.bcolors.ENDC}'
             f'\nEnter true to continue once the backup is complete.'):
-    csf.executeSQL('EXEC ACData.dbo.UpdateCountsFromVRM')
+    csf.executeSQL('EXEC MAMData.dbo.UpdateCountsFromVRM')
 
 
