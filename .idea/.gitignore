@@ -1,3 +1,7 @@
 # Default ignored files
 /shelf/
 /workspace.xml
+
+# Environment files that will be different for each local user and stay different
+/misc.xml
+/RainDataToolkit.iml
