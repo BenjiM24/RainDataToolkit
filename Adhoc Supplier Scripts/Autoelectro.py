@@ -88,10 +88,10 @@ def runAutoelectroReports(jobFolder):
     saveLocation = jobFolder + '\\work'
     CommonFunctions.saveDataInExcel(saveLocation, 'mandatory criteria', df)
 
-def pushImageChangesIntoMaster(jobFolder):
-    imagesFolder = CommonFunctions.getFilePathInput('Please enter the Master Images folder for this supplier:')
-
-    newImagesFolder = jobFolder + '\\input\\'
+def outputReports(jobFolder):
+     df = CommonSQLFunctions.executeSQLWithResults('EXEC PaperCatalogueImport.Autoelectro.GapReport')
+     CommonFunctions.saveDataInExcel(jobFolder + '\\Output\\', f'AE - No Target KType Found - '
+                                                               f'{CommonFunctions.getTimeStamp()}', df)
 
 def start():
     jobFolder = CommonFunctions.getFilePathInput('Please enter the job folder:')
@@ -111,6 +111,7 @@ def start():
                    4: 'Create DAT files',
                    5: 'Generate TecDoc quality reports',
                    6: 'Export DAT Files',
+                   7: 'Generate Output Reports for Customer',
                    '*': 'Run all of the above'
                    }
 
@@ -143,5 +144,7 @@ def start():
             import Applications.DATFileExport as datExport
             datExport.start()
 
+        if chosenOption == '7' or chosenOption.lower() == '*':
+            outputReports(jobFolder)
 
 start()

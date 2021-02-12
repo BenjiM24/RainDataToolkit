@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 import pyodbc
 import pandas as pd
 import os
+import CommonFunctions as cf
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -133,3 +134,18 @@ def insertListIntoDB(list, databaseName, tableName, schemaName = 'dbo'):
 
     df = pd.DataFrame({'col': list})
     df.to_sql(tableName, schema=schemaName, con=engine, if_exists='replace')
+
+def restoreDatabase(databaseName, bakFile, logFilename, dataFilename):
+    #does not work for some reason
+    if cf.get_bool(f'{cf.bcolors.WARNING}WARNING: You are about to restore a database over another. '
+                   f'Is your job worth it?{cf.bcolors.ENDC}'):
+        sql = f"USE [master]; " \
+              f"\nIF EXISTS (SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = '{databaseName}')" \
+              f"\nBEGIN ALTER DATABASE {databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE; END" \
+              f"\n           RESTORE DATABASE {databaseName} FROM  DISK =   N'{bakFile}' " \
+              f"\n WITH MOVE '{dataFilename}' TO 'E:\\Data\\{dataFilename}.mdf'," \
+              f"\n MOVE '{logFilename}' TO 'E:\\Logs\\{logFilename}.ldf' " \
+              f"\nALTER DATABASE {databaseName} SET MULTI_USER;"
+
+        return sql
+        #executeSQL(sql)
