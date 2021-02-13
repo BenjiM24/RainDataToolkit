@@ -57,11 +57,12 @@ def saveDataInExcel(saveLocation, filename, df):
     worksheet.add_table(0, 0, max_row, max_col - 1, {'columns': column_settings})
 
     # Make the columns wider for clarity.
-    worksheet.set_column(0, max_col - 1, 12)
+    for i, width in enumerate(get_col_widths(df)):
+        worksheet.set_column(i, i, width)
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-    #print(f'{filename} successfully saved in Excel: {fileSavePath}')
+    writer.close()
 
 def inputRequest(parameterRequest, parameterType=None):
     returnValue = None
@@ -104,7 +105,6 @@ def resizeImage(filePath):
 def getTimeStamp():
     return datetime.datetime.now().strftime('%d-%m-%Y %H%M%S')
 
-
 def df_column_uniquify(df):
     df_columns = df.columns
     new_columns = []
@@ -115,7 +115,7 @@ def df_column_uniquify(df):
             #how many times has this already been added:
             counter += 1
             newitem = "{}_{}".format(item, counter)
-        new_columns.append(newitem)
+        new_columns.append(newitem.strip())
     df.columns = new_columns
     return df
 
@@ -129,3 +129,10 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+def get_col_widths(dataframe):
+    # First we find the maximum length of the index column
+    #idx_max = max([len(str(s)) for s in dataframe.index.values] + [len(str(dataframe.index.name))])
+    # Then, we concatenate this to the max of the lengths of column name and its values for each column, left to right
+    #return [idx_max] + [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
+    return [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
