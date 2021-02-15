@@ -62,9 +62,12 @@ def zipFilesTogether(saveLocation, supplierNumber):
     zf.close()
 
 
-def start():
+def start(saveLocation=None):
+    if saveLocation == None:
+        saveLocation = cf.getFilePathInput('Enter the required save location:')
+    saveLocation = saveLocation + '\\DAT Export ' + cf.getTimeStamp()
+    Path(saveLocation).mkdir(parents=True, exist_ok=True)
     supplierNumber = cf.inputRequest('Enter the required supplier number:', 'int')
-    saveLocation = cf.getFilePathInput('Enter the required save location:')
 
     imagesRequired = cf.get_bool('Do you require images & documents (PDFs)?')
 
@@ -84,6 +87,3 @@ def start():
 
     print('Data ready:')
     input(saveLocation+'\\DATPackage')
-
-
-start()

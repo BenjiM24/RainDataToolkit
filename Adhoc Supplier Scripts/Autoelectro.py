@@ -23,36 +23,22 @@ def loadAutoelectroData(jobFolder):
                                           fileType='txt', databaseName=paperCatalogueDB, tableName='AOA',
                                           schemaName=paperCatalogueSchema, appendaction='replace')
 
-    CommonSQLFunctions.loadDataIntoSQL(folderLocation=jobFolder + r'\Input\MAMSubmission',
-                    fileName='AOS',
-                    database='PaperCatalogueImport',
-                    schema='Autoelectro',
-                    tablename='AOS',
-                    truncateExisting=True)
+    CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='AOS',
+                                         fileType='txt', databaseName=paperCatalogueDB, tableName='AOS',
+                                        schemaName=paperCatalogueSchema, appendaction='replace')
 
-    CommonSQLFunctions.loadDataIntoSQL(folderLocation=jobFolder + r'\Input\MAMSubmission',
-                    fileName='XRef',
-                    database='PaperCatalogueImport',
-                    schema='Autoelectro',
-                    tablename='CrossRef',
-                    truncateExisting=True,
-                    fileType='csv')
+    CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='XRef',
+                                         fileType='csv', databaseName=paperCatalogueDB, tableName='CrossRef',
+                                          schemaName=paperCatalogueSchema, appendaction='replace')
 
-    CommonSQLFunctions.loadDataIntoSQL(folderLocation=jobFolder + r'\Input\MAMSubmission',
-                    fileName='AOA',
-                    database='PaperCatalogueImport',
-                    schema='Autoelectro',
-                    tablename='Images',
-                    truncateExisting=True,
-                    fileType='csv')
+    CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='AOA',
+                                         fileType='csv', databaseName=paperCatalogueDB, tableName='Images',
+                                          schemaName=paperCatalogueSchema, appendaction='replace', encoding='utf_16_le')
 
-    CommonSQLFunctions.loadDataIntoSQL(folderLocation=jobFolder + r'\Input\MAMSubmission',
-                    fileName='AOS',
-                    database='PaperCatalogueImport',
-                    schema='Autoelectro',
-                    tablename='Images',
-                    truncateExisting=False,
-                    fileType='csv')
+    CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='AOS',
+                                          fileType='csv', databaseName=paperCatalogueDB, tableName='Images',
+                                         schemaName=paperCatalogueSchema, appendaction='append', encoding='utf_16_le')
+
 
     #get list of all image filenames
     filenames = CommonFunctions.getFilenamesWithinFolder(masterImagesFolder)
@@ -86,6 +72,7 @@ def runAutoelectroReports(jobFolder):
     df = CommonSQLFunctions.getMandatoryCriteriaReport(4842)
     saveLocation = jobFolder + '\\work'
     CommonFunctions.saveDataInExcel(saveLocation, 'mandatory criteria', df)
+    print('Reports saved in work folder.')
 
 def outputReports(jobFolder):
      df = CommonSQLFunctions.executeSQLWithResults('EXEC PaperCatalogueImport.Autoelectro.GapReport')
@@ -107,10 +94,9 @@ def start():
                    1: 'Load input data into SQL',
                    2: 'Run CatalogueManager cleansing modules',
                    3: 'Push data into DAT template tables',
-                   4: 'Create DAT files',
-                   5: 'Generate TecDoc quality reports',
-                   6: 'Export DAT Files',
-                   7: 'Generate Output Reports for Customer',
+                   4: 'Generate TecDoc quality reports',
+                   5: 'Export DAT Files',
+                   6: 'Generate Output Reports for Customer',
                    '*': 'Run all of the above'
                    }
 
@@ -134,16 +120,13 @@ def start():
             CommonSQLFunctions.loadCatalogueManagerIntoTecDocOutputTables(4842)
 
         if chosenOption == '4' or chosenOption.lower() == '*':
-            print('todo')
-
-        if chosenOption == '5' or chosenOption.lower() == '*':
             runAutoelectroReports(jobFolder)
 
-        if chosenOption == '6' or chosenOption.lower() == '*':
+        if chosenOption == '5' or chosenOption.lower() == '*':
             import Applications.DATFileExport as datExport
-            datExport.start()
+            datExport.start(saveLocation=jobFolder + '\\Output')
 
-        if chosenOption == '7' or chosenOption.lower() == '*':
+        if chosenOption == '6' or chosenOption.lower() == '*':
             outputReports(jobFolder)
 
 start()

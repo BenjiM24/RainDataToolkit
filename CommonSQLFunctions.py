@@ -21,13 +21,15 @@ password = Config.get('CoreContext', 'password')
 database = Config.get('CoreContext', 'database')
 
 conn = pyodbc.connect('driver=%s;server=%s;database=%s;uid=%s;pwd=%s' % (driver, host, database, user, password))
+def getConn(db=database):
+    return pyodbc.connect('driver=%s;server=%s;database=%s;uid=%s;pwd=%s' % (driver, host, db, user, password))
 
 #quoted = urllib.parse.quote_plus(conn)
 engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(conn))
 
 
-def executeSQL(queryString):
-    cursor = conn.cursor()
+def executeSQL(queryString, db=database):
+    cursor = getConn(db=db).cursor()
     cursor.execute(queryString)
     cursor.commit()
 
@@ -102,7 +104,7 @@ def runModularCleanse(supplierId):
 
 def loadCatalogueManagerIntoTecDocOutputTables(supplierId):
     executeSQL(f'EXEC CatalogueManagerOutput.TecDoc.PopulateTecDocTablesFromCatMan @SupplierId = {supplierId}, '
-               '@SupplierIdForTecDoc = {supplierId};')
+               f'@SupplierIdForTecDoc = {supplierId};')
 
 def getMandatoryCriteriaReport(supplierId):
     query = f"EXEC CatalogueManagerOutput.TecDoc.MandatoryCriteriaReport @SupplierId = {supplierId};"
@@ -143,15 +145,17 @@ def insertDFIntoDB(df, databaseName, tableName, schemaName='dbo', appendaction='
     # have to reinitiate the connection string to allow for dynamic database name (for df.to_sql)
     engine = create_engine(f'mssql+pyodbc://{user}:{password}@{host}/{databaseName}?driver=SQL+Server')
 
-    insert_with_progress(df, engine=engine, tableName=tableName, schemaName=schemaName, appendaction=appendaction)
+    insert_with_progress(df, engine=engine, tableName=tableName, schemaName=schemaName, appendAction=appendaction)
 
 def chunker(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 def insert_with_progress(df, engine, tableName, schemaName, appendAction):
-    chunksize = int(len(df) / 10)
+    chunksize = int(len(df) / 20)
     with tqdm(total=len(df)) as pbar:
         for i, cdf in enumerate(chunker(df, chunksize)):
+            if appendAction == 'replace' and i > 0:
+                appendAction = 'append'
             cdf.to_sql(tableName, schema=schemaName, con=engine, if_exists=appendAction, index=False)
             pbar.update(chunksize)
             tqdm._instances.clear()
@@ -171,10 +175,11 @@ def restoreDatabase(databaseName, bakFile, logFilename, dataFilename):
         return sql
         #executeSQL(sql)
 
-def loadFlatFileIntoDB(folderFilepath, fileName, fileType, databaseName, tableName, schemaName, appendaction):
+def loadFlatFileIntoDB(folderFilepath, fileName, fileType, databaseName, tableName, schemaName, appendaction,
+                        encoding='utf8'):
 
     df = cf.loadFlatFileIntoDF(folderFilepath=folderFilepath, fileName=fileName,
-                                        fileType=fileType)
+                                        fileType=fileType, encoding=encoding)
     insertDFIntoDB(df, databaseName=databaseName, tableName=tableName, schemaName=schemaName,
                                       appendaction=appendaction)
 

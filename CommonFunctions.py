@@ -6,6 +6,9 @@ import xlsxwriter
 from PIL import Image
 import datetime
 
+from tqdm import tqdm
+
+
 def get_bool(prompt):
     while True:
         try:
@@ -136,7 +139,7 @@ def get_col_widths(dataframe):
     #return [idx_max] + [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
     return [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
 
-def loadFlatFileIntoDF(folderFilepath, fileName, fileType):
+def loadFlatFileIntoDF(folderFilepath, fileName, fileType, encoding= 'utf8'):
     inputFile = folderFilepath + '\\' + fileName + '.' + fileType
 
     separators = {
@@ -144,4 +147,4 @@ def loadFlatFileIntoDF(folderFilepath, fileName, fileType):
         'txt': '\t'
     }
 
-    return pd.read_csv(inputFile, sep=separators[fileType])
+    return pd.read_csv(inputFile, delimiter=separators[fileType], encoding=encoding)
