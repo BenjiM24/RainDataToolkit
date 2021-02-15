@@ -136,3 +136,13 @@ def get_col_widths(dataframe):
     # Then, we concatenate this to the max of the lengths of column name and its values for each column, left to right
     #return [idx_max] + [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
     return [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
+
+def loadDataIntoDF(folderFilepath, fileName, fileType):
+    inputFile = folderFilepath + '\\' + fileName + '.' + fileType
+
+    separators = {
+        'csv': ',',
+        'txt': '\t'
+    }
+
+    return pd.read_csv(inputFile, sep=separators[fileType])
