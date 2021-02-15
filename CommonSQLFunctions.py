@@ -135,6 +135,15 @@ def insertListIntoDB(list, databaseName, tableName, schemaName = 'dbo'):
     df = pd.DataFrame({'col': list})
     df.to_sql(tableName, schema=schemaName, con=engine, if_exists='replace')
 
+
+def insertDFIntoDB(df, databaseName, tableName, schemaName='dbo', appendaction='append'):
+    # have to reinitiate the connection string to allow for dynamic database name (for df.to_sql)
+    engine = create_engine(f'mssql+pyodbc://{user}:{password}@{host}/{databaseName}?driver=SQL+Server')
+
+    df.to_sql(tableName, schema=schemaName, con=engine, if_exists=appendaction)
+
+
+
 def restoreDatabase(databaseName, bakFile, logFilename, dataFilename):
     #does not work for some reason
     if cf.get_bool(f'{cf.bcolors.WARNING}WARNING: You are about to restore a database over another. '
@@ -149,3 +158,10 @@ def restoreDatabase(databaseName, bakFile, logFilename, dataFilename):
 
         return sql
         #executeSQL(sql)
+
+def loadFlatFileIntoDB(folderFilepath, fileName, fileType, databaseName, tableName, schemaName, appendaction):
+
+    df = cf.loadFlatFileIntoDF(folderFilepath=folderFilepath, fileName=fileName,
+                                        fileType=fileType)
+    insertDFIntoDB(df, databaseName=databaseName, tableName=tableName, schemaName=schemaName,
+                                      appendaction=appendaction)

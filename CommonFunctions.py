@@ -136,7 +136,7 @@ def get_col_widths(dataframe):
     #return [idx_max] + [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
     return [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
 
-def loadDataIntoDF(folderFilepath, fileName, fileType):
+def loadFlatFileIntoDF(folderFilepath, fileName, fileType):
     inputFile = folderFilepath + '\\' + fileName + '.' + fileType
 
     separators = {

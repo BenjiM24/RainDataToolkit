@@ -8,6 +8,8 @@ import shutil
 
 masterImagesFolder = r'Z:\Rain Data\Supplier Work\Autoelectro\Master Images'
 masterBulletinsFolder = r'Z:\Rain Data\Supplier Work\Autoelectro\Master Bulletins'
+paperCatalogueDB = 'PaperCatalogueImport'
+paperCatalogueSchema = 'Autoelectro'
 
 def createRequiredSubfolders(saveLocation):
     Path(saveLocation + r'\Input').mkdir(parents=True, exist_ok=True)
@@ -17,12 +19,9 @@ def createRequiredSubfolders(saveLocation):
     Path(saveLocation + r'\Work').mkdir(parents=True, exist_ok=True)
 
 def loadAutoelectroData(jobFolder):
-    CommonSQLFunctions.loadDataIntoSQL(folderLocation=jobFolder + r'\Input\MAMSubmission',
-                    fileName='AOA',
-                    database='PaperCatalogueImport',
-                    schema='Autoelectro',
-                    tablename='AOA',
-                    truncateExisting=True)
+    CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='AOA',
+                                          fileType='txt', databaseName=paperCatalogueDB, tableName='AOA',
+                                          schemaName=paperCatalogueSchema, appendaction='replace')
 
     CommonSQLFunctions.loadDataIntoSQL(folderLocation=jobFolder + r'\Input\MAMSubmission',
                     fileName='AOS',
