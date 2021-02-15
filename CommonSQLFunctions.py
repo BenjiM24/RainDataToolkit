@@ -4,6 +4,9 @@ from sqlalchemy import create_engine
 import pyodbc
 import pandas as pd
 import os
+
+from tqdm import tqdm
+
 import CommonFunctions as cf
 
 root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -140,9 +143,18 @@ def insertDFIntoDB(df, databaseName, tableName, schemaName='dbo', appendaction='
     # have to reinitiate the connection string to allow for dynamic database name (for df.to_sql)
     engine = create_engine(f'mssql+pyodbc://{user}:{password}@{host}/{databaseName}?driver=SQL+Server')
 
-    df.to_sql(tableName, schema=schemaName, con=engine, if_exists=appendaction)
+    insert_with_progress(df, engine=engine, tableName=tableName, schemaName=schemaName, appendaction=appendaction)
 
+def chunker(seq, size):
+    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
+def insert_with_progress(df, engine, tableName, schemaName, appendAction):
+    chunksize = int(len(df) / 10)
+    with tqdm(total=len(df)) as pbar:
+        for i, cdf in enumerate(chunker(df, chunksize)):
+            cdf.to_sql(tableName, schema=schemaName, con=engine, if_exists=appendAction, index=False)
+            pbar.update(chunksize)
+            tqdm._instances.clear()
 
 def restoreDatabase(databaseName, bakFile, logFilename, dataFilename):
     #does not work for some reason
@@ -165,3 +177,4 @@ def loadFlatFileIntoDB(folderFilepath, fileName, fileType, databaseName, tableNa
                                         fileType=fileType)
     insertDFIntoDB(df, databaseName=databaseName, tableName=tableName, schemaName=schemaName,
                                       appendaction=appendaction)
+
