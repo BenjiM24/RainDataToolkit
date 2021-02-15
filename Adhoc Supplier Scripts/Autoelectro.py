@@ -126,7 +126,7 @@ def start():
             import Applications.DATFileExport as datExport
             datExport.start(saveLocation=jobFolder + '\\Output')
 
-        if chosenOption == '6' or chosenOption.lower() == '*':
+        if chosenOption == '6' or chosenOption.lower()  == '*':
             outputReports(jobFolder)
 
 start()

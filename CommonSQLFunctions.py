@@ -41,26 +41,18 @@ def executeSQLWithResults(query):
     dataList = []
     data = None
 
-    while result:
-        col_names = [x[0] for x in crsr.description]
-        data = [tuple(x) for x in result]  # convert pyodbc.Row objects to tuples
-        data = pd.DataFrame(data, columns=col_names)
-        if crsr.nextset():
-            result = crsr.fetchall()
-        else:
-            result = None
+    col_names = [x[0] for x in crsr.description]
+    data = [tuple(x) for x in result]  # convert pyodbc.Row objects to tuples
+    data = pd.DataFrame(data, columns=col_names)
 
-    multipleSets = False
+    dataList.append(data)
+
     while (crsr.nextset()):
-        if multipleSets == False:
-            if data is not None:
-                dataList.append(data)
-            multipleSets = True
         rows = crsr.fetchall()
         columns = [column[0] for column in crsr.description]
         dataList.append(pd.DataFrame.from_records(rows, columns=columns))
 
-    if multipleSets:
+    if dataList.count() > 1:
         data = dataList
 
     crsr.close()
