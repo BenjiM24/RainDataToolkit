@@ -62,7 +62,6 @@ def saveDataInExcel(saveLocation, filename, df):
 
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
-    writer.close()
 
 def inputRequest(parameterRequest, parameterType=None):
     returnValue = None
