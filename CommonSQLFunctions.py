@@ -30,13 +30,15 @@ engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(conn))
 
 def executeSQL(queryString, db=database):
     cursor = getConn(db=db).cursor()
-    cursor.execute(queryString)
+    with cf.Spinner():
+        cursor.execute(queryString)
     cursor.commit()
 
 def executeSQLWithResults(query):
     crsr = conn.cursor()
     query = 'SET NOCOUNT ON ' + query
-    crsr.execute(query)
+    with cf.Spinner():
+        crsr.execute(query)
     result = crsr.fetchall()
     dataList = []
     data = None
@@ -52,7 +54,7 @@ def executeSQLWithResults(query):
         columns = [column[0] for column in crsr.description]
         dataList.append(pd.DataFrame.from_records(rows, columns=columns))
 
-    if dataList.count() > 1:
+    if len(dataList) > 1:
         data = dataList
 
     crsr.close()
@@ -111,7 +113,8 @@ def truncateTable(sqlTable):
 def getListOfSectionsByAuditId(auditId):
     crsr = conn.cursor()
     query = f"EXEC dbo.GetSeccodefromaudit @AuditId = {auditId}"
-    crsr.execute(query)
+    with cf.spinner():
+        crsr.execute(query)
     result = crsr.fetchall()
     result = [row[0] for row in result]
     return result

@@ -36,10 +36,10 @@ def copyDocumentFiles(supplierNumber, masterImagesLocation, masterDocumentsLocat
         filename = row[0]
         if (os.path.isfile(masterDocumentsLocation + '\\' + filename)) and filename.endswith('.pdf'):
             #copy
-            shutil.copy(os.path.join(masterDocumentsLocation, filename), os.path.join(saveLocation, filename))
+            shutil.copy(os.path.join(masterDocumentsLocation, filename), os.path.join(saveLocation, filename.upper()))
         if (os.path.isfile(masterImagesLocation + '\\' + filename)) and filename.endswith('.jpg'):
             #move and resize
-            imageSaveLocation = os.path.join(saveLocation, filename)
+            imageSaveLocation = os.path.join(saveLocation, filename.upper())
             shutil.copy(os.path.join(masterImagesLocation, filename), imageSaveLocation)
             cf.resizeImage(imageSaveLocation)
 
