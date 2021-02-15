@@ -52,7 +52,7 @@ def executeSQLWithResults(query):
         columns = [column[0] for column in crsr.description]
         dataList.append(pd.DataFrame.from_records(rows, columns=columns))
 
-    if dataList.count() > 1:
+    if len(dataList) > 1:
         data = dataList
 
     crsr.close()
