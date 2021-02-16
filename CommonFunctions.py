@@ -143,16 +143,17 @@ def get_col_widths(dataframe):
     #return [idx_max] + [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
     return [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
 
-def loadFlatFileIntoDF(folderFilepath, fileName, fileType, encoding= 'utf8'):
+def loadFlatFileIntoDF(folderFilepath, fileName, fileType, encoding= None):
     inputFile = folderFilepath + '\\' + fileName + '.' + fileType
 
     separators = {
         'csv': ',',
         'txt': '\t'
     }
-
-    return pd.read_csv(inputFile, delimiter=separators[fileType], encoding=encoding)
-
+    if encoding is None:
+        return pd.read_csv(inputFile, delimiter=separators[fileType])
+    else:
+        return pd.read_csv(inputFile, delimiter=separators[fileType], encoding=encoding)
 class Spinner:
     busy = False
     delay = 0.1

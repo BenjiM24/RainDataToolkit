@@ -171,10 +171,16 @@ def restoreDatabase(databaseName, bakFile, logFilename, dataFilename):
         #executeSQL(sql)
 
 def loadFlatFileIntoDB(folderFilepath, fileName, fileType, databaseName, tableName, schemaName, appendaction,
-                        encoding='utf8'):
+                        encoding= None):
 
     df = cf.loadFlatFileIntoDF(folderFilepath=folderFilepath, fileName=fileName,
                                         fileType=fileType, encoding=encoding)
     insertDFIntoDB(df, databaseName=databaseName, tableName=tableName, schemaName=schemaName,
                                       appendaction=appendaction)
+
+def getLinksWithNoDifferentiatingCriteria(supplierId):
+    query = f"EXEC CatalogueManagerOutput.TecDoc.Warning145LinksWithNoDifferentiatingCriteria @SupplierNumber = {supplierId};"
+    return executeSQLWithResults(query)
+
+
 

@@ -18,6 +18,8 @@ def createRequiredSubfolders(saveLocation):
 
     Path(saveLocation + r'\Work').mkdir(parents=True, exist_ok=True)
 
+    Path(saveLocation + r'\Work\Reports').mkdir(parents=True, exist_ok=True)
+
 def loadAutoelectroData(jobFolder):
     CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='AOA',
                                           fileType='txt', databaseName=paperCatalogueDB, tableName='AOA',
@@ -71,9 +73,16 @@ def mergeNewDocumentsIntoMaster(jobFolder):
 
 
 def runAutoelectroReports(jobFolder):
+    saveLocation = jobFolder + '\\Work\\Reports'
+
     df = CommonSQLFunctions.getMandatoryCriteriaReport(4842)
-    saveLocation = jobFolder + '\\work'
-    CommonFunctions.saveDataInExcel(saveLocation, 'mandatory criteria', df)
+    CommonFunctions.saveDataInExcel(saveLocation, f'Missing Mandatory Criteria (Error 596) '
+                                                  f'{CommonFunctions.getTimeStamp()}', df)
+
+    df = CommonSQLFunctions.getLinksWithNoDifferentiatingCriteria(4842)
+    CommonFunctions.saveDataInExcel(saveLocation, f'Links with No Differentiating Criteria (Warning 145) '
+                                                  f'{CommonFunctions.getTimeStamp()}', df)
+
     input(f'{CommonFunctions.bcolors.WARNING}Reports saved in work folder. Check files and press enter to continue...'
           f'{CommonFunctions.bcolors.ENDC}')
 
