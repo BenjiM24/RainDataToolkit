@@ -19,6 +19,7 @@ def get_bool(prompt):
                    "y": True,
                    "1": True,
                    "yes": True,
+                   "t": True,
                    "false": False,
                    "n": False,
                    "0": False,

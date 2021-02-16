@@ -24,20 +24,20 @@ def loadAutoelectroData(jobFolder):
                                           schemaName=paperCatalogueSchema, appendaction='replace')
 
     CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='AOS',
-                                         fileType='txt', databaseName=paperCatalogueDB, tableName='AOS',
-                                        schemaName=paperCatalogueSchema, appendaction='replace')
+                                          fileType='txt', databaseName=paperCatalogueDB, tableName='AOS',
+                                          schemaName=paperCatalogueSchema, appendaction='replace')
 
     CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='XRef',
-                                         fileType='csv', databaseName=paperCatalogueDB, tableName='CrossRef',
+                                          fileType='csv', databaseName=paperCatalogueDB, tableName='CrossRef',
                                           schemaName=paperCatalogueSchema, appendaction='replace')
 
     CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='AOA',
-                                         fileType='csv', databaseName=paperCatalogueDB, tableName='Images',
+                                          fileType='csv', databaseName=paperCatalogueDB, tableName='Images',
                                           schemaName=paperCatalogueSchema, appendaction='replace', encoding='utf_16_le')
 
     CommonSQLFunctions.loadFlatFileIntoDB(folderFilepath=jobFolder + r'\Input\MAMSubmission', fileName='AOS',
                                           fileType='csv', databaseName=paperCatalogueDB, tableName='Images',
-                                         schemaName=paperCatalogueSchema, appendaction='append', encoding='utf_16_le')
+                                          schemaName=paperCatalogueSchema, appendaction='append', encoding='utf_16_le')
 
 
     #get list of all image filenames
@@ -57,6 +57,8 @@ def mergeNewImagesIntoMaster(jobFolder):
         for filename in os.listdir(imagesFolder):
             if filename.endswith('.jpg') or filename.endswith('.bmp'):
                 shutil.copy(os.path.join(imagesFolder, filename), os.path.join(masterImagesFolder, filename))
+    else:
+        print(f'{CommonFunctions.bcolors.WARNING}Images folder not found{CommonFunctions.bcolors.ENDC}')
 
 def mergeNewDocumentsIntoMaster(jobFolder):
     bulletinsFolder = jobFolder + '\\Input\\packinginfo\\packinginfo'
@@ -72,7 +74,8 @@ def runAutoelectroReports(jobFolder):
     df = CommonSQLFunctions.getMandatoryCriteriaReport(4842)
     saveLocation = jobFolder + '\\work'
     CommonFunctions.saveDataInExcel(saveLocation, 'mandatory criteria', df)
-    print('Reports saved in work folder.')
+    input(f'{CommonFunctions.bcolors.WARNING}Reports saved in work folder. Check files and press enter to continue...'
+          f'{CommonFunctions.bcolors.ENDC}')
 
 def outputReports(jobFolder):
      df = CommonSQLFunctions.executeSQLWithResults('EXEC PaperCatalogueImport.Autoelectro.GapReport')
@@ -126,7 +129,7 @@ def start():
             import Applications.DATFileExport as datExport
             datExport.start(saveLocation=jobFolder + '\\Output')
 
-        if chosenOption == '6' or chosenOption.lower()  == '*':
+        if chosenOption == '6' or chosenOption.lower() == '*':
             outputReports(jobFolder)
 
 start()
