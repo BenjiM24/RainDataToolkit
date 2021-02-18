@@ -71,6 +71,43 @@ def saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesReq
             print(f'Something went wrong with section {section}.')
             print(repr(error))
 
+def processReports(saveLocation, auditId, sectionCodes):
+    reportSaveLocation = saveLocation + r'\RainData\Reports'
+    Path(reportSaveLocation).mkdir(parents=True, exist_ok=True)
+
+    previousAuditId = 0
+
+    options = {
+        1: 'Audit Comparison',
+        2: 'Unused Headers',
+        '*': 'Run all of the above'
+    }
+
+    print('Please select from the following options:')
+    for x in options:
+        print(str(x) + ': ' + options[x])
+    chosenOption = input()
+
+    if chosenOption == '1' or chosenOption == '*':
+        if previousAuditId == 0:
+            previousAuditId = cf.inputRequest('Enter previous audit id:', 'int')
+
+        cf.saveDataInExcel(reportSaveLocation, f'AuditComparison {auditId} vs {previousAuditId}',
+                           csf.executeSQLWithResults(f'EXEC Report.AuditComparison @NewAuditId = {auditId}, '
+                                                     f'@OldAuditId = {previousAuditId}, '
+                                                     f'@IncludeImageReference = NULL'))
+
+    if chosenOption == '2' or chosenOption == '*':
+        for section in tqdm(sectionCodes):
+            df = csf.executeSQLWithResults(f"EXEC Report.UnusedCriteriaAndHeaders @AuditId = {auditId}, "
+                                           f"@Sec = '{section}'")
+
+            if df.Empty:
+                print(f'No unused headers found for: {section}. Maybe this is a trade number or mirror section...?')
+            else:
+                cf.saveDataInExcel(reportSaveLocation, f'{section} Unused Headers - {auditId}', df)
+
+
 def start():
     auditId = cf.inputRequest('Enter the audit ID:', 'int')
     saveLocation = cf.inputRequest('Enter the save location:', 'filepath')
@@ -88,6 +125,10 @@ def start():
 
     saveLocation = createRequiredSubfolders(zipRequired, crossRefsRequired, saveLocation, supplierName, auditId)
 
-    saveSections(auditId, sectionCodes, saveLocation, zipRequired,excelFilesRequired)
+    saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired)
+
+    if cf.get_bool('Do you require reports?'):
+        processReports(saveLocation, auditId, sectionCodes)
+
 
 start()

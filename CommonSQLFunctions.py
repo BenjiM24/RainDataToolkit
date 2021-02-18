@@ -33,6 +33,7 @@ def executeSQL(queryString, db=database):
     with cf.Spinner():
         cursor.execute(queryString)
     cursor.commit()
+    cursor.close()
 
 def executeSQLWithResults(query):
     crsr = conn.cursor()
@@ -113,10 +114,11 @@ def truncateTable(sqlTable):
 def getListOfSectionsByAuditId(auditId):
     crsr = conn.cursor()
     query = f"EXEC dbo.GetSeccodefromaudit @AuditId = {auditId}"
-    with cf.spinner():
+    with cf.Spinner():
         crsr.execute(query)
     result = crsr.fetchall()
     result = [row[0] for row in result]
+    crsr.close()
     return result
 
 def getSupplierNameFromAudit(auditId):
@@ -125,6 +127,7 @@ def getSupplierNameFromAudit(auditId):
     crsr.execute(query)
     result = crsr.fetchall()
     result = result[0][0]
+    crsr.close()
     return result
 
 def insertListIntoDB(list, databaseName, tableName, schemaName = 'dbo'):
