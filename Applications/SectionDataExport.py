@@ -102,11 +102,10 @@ def processReports(saveLocation, auditId, sectionCodes):
             df = csf.executeSQLWithResults(f"EXEC Report.UnusedCriteriaAndHeaders @AuditId = {auditId}, "
                                            f"@Sec = '{section}'")
 
-            if df.Empty:
+            if df is not None and isinstance(df, pd.DataFrame) and not df.empty:
                 print(f'No unused headers found for: {section}. Maybe this is a trade number or mirror section...?')
             else:
                 cf.saveDataInExcel(reportSaveLocation, f'{section} Unused Headers - {auditId}', df)
-
 
 def start():
     auditId = cf.inputRequest('Enter the audit ID:', 'int')
