@@ -103,9 +103,9 @@ def processReports(saveLocation, auditId, sectionCodes):
                                            f"@Sec = '{section}'")
 
             if df is not None and isinstance(df, pd.DataFrame) and not df.empty:
-                print(f'No unused headers found for: {section}. Maybe this is a trade number or mirror section...?')
-            else:
                 cf.saveDataInExcel(reportSaveLocation, f'{section} Unused Headers - {auditId}', df)
+            else:
+                print(f'No unused headers found for: {section}. Maybe this is a trade number or mirror section...?')
 
 def start():
 
