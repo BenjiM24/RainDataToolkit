@@ -125,6 +125,9 @@ def start():
     saveLocation = cf.inputRequest('Enter the save location:', 'filepath')
     sectionCodes = cf.inputRequest('Enter section codes if required (leave blank to extract all):')
 
+    if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
+        sectionCodes = csf.getListOfSectionsByAuditId(auditId)
+
     supplierName = csf.getSupplierNameFromAudit(auditId)
 
     if chosenOption == '1' or chosenOption == '*':
@@ -139,10 +142,6 @@ def start():
     saveLocation = createRequiredSubfolders(zipRequired, crossRefsRequired, saveLocation, supplierName, auditId)
 
     if chosenOption == '1' or chosenOption == '*':
-
-
-        if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
-            sectionCodes = csf.getListOfSectionsByAuditId(auditId)
         if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
             raise ValueError('No sections found. Has this audit been archived?')
 
