@@ -148,7 +148,7 @@ def start():
 
         saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired)
 
-    if cf.get_bool('Do you require reports?'):
+    if chosenOption == '2' or chosenOption == '*':
         processReports(saveLocation, auditId, sectionCodes)
 
 
