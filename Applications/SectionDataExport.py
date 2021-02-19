@@ -108,23 +108,45 @@ def processReports(saveLocation, auditId, sectionCodes):
                 cf.saveDataInExcel(reportSaveLocation, f'{section} Unused Headers - {auditId}', df)
 
 def start():
+
+    options = {
+        1: 'Extract Audit Data',
+        2: 'Generate Audit Reports',
+        '*': 'Run all of the above'
+    }
+
+    print('Please select from the following options:')
+    for x in options:
+        print(str(x) + ': ' + options[x])
+
+    chosenOption = input()
+
     auditId = cf.inputRequest('Enter the audit ID:', 'int')
     saveLocation = cf.inputRequest('Enter the save location:', 'filepath')
     sectionCodes = cf.inputRequest('Enter section codes if required (leave blank to extract all):')
-    zipRequired = cf.inputRequest('Do you require zip files? True/False', 'bool')
-    excelFilesRequired = cf.inputRequest('Do you require excel files? True/False', 'bool')
-    crossRefsRequired = cf.inputRequest('Do you require cross refs? True/False', 'bool')
-
-    if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
-        sectionCodes = csf.getListOfSectionsByAuditId(auditId)
-    if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
-        raise ValueError('No sections found. Has this audit been archived?')
 
     supplierName = csf.getSupplierNameFromAudit(auditId)
 
+    if chosenOption == '1' or chosenOption == '*':
+        zipRequired = cf.inputRequest('Do you require zip files? True/False', 'bool')
+        excelFilesRequired = cf.inputRequest('Do you require excel files? True/False', 'bool')
+        crossRefsRequired = cf.inputRequest('Do you require cross refs? True/False', 'bool')
+    else:
+        zipRequired = False
+        excelFilesRequired = False
+        crossRefsRequired = False
+
     saveLocation = createRequiredSubfolders(zipRequired, crossRefsRequired, saveLocation, supplierName, auditId)
 
-    saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired)
+    if chosenOption == '1' or chosenOption == '*':
+
+
+        if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
+            sectionCodes = csf.getListOfSectionsByAuditId(auditId)
+        if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
+            raise ValueError('No sections found. Has this audit been archived?')
+
+        saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired)
 
     if cf.get_bool('Do you require reports?'):
         processReports(saveLocation, auditId, sectionCodes)
