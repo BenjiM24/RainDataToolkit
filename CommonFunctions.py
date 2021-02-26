@@ -8,6 +8,8 @@ import datetime
 import sys
 import time
 import threading
+from PIL import Image
+from pathlib import Path
 
 from tqdm import tqdm
 
@@ -184,3 +186,15 @@ class Spinner:
         time.sleep(self.delay)
         if exception is not None:
             return False
+
+def convertToJPG(directory):
+    processedDirectory = directory + '\\JPG'
+    Path(processedDirectory).mkdir(parents=True, exist_ok=True)
+
+    for file in tqdm(os.listdir(directory)):
+        if file.endswith(".png") or file.endswith(".bmp"):
+            im = Image.open(directory + '\\' + file)
+            bg = Image.new("RGB", im.size, (255, 255, 255))
+            bg.paste(im, im)
+            pre, ext = os.path.splitext(file)
+            bg.save(processedDirectory + '\\' + pre+'.jpg')
