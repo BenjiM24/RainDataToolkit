@@ -79,7 +79,6 @@ def loadIntoDB(inputFolder):
                            schemaName='Sealey', appendaction='replace')
 
 def start():
-
     if(cf.get_bool('Does the job folder already exist?')):
         jobFolder = cf.getFilePathInput('Enter filepath')
     else:
@@ -124,7 +123,7 @@ def start():
             processNewProducts()
 
             if cf.get_bool('Export full matched with unmatched report?'):
-                import Applications.EntityMatchTasks as emt
+                import Misc.EntityMatchTasks as emt
                 emt.getMatchedWithUnmatched(13, 12, workFolder)
 
             input('Check supplier data email inbox for new product codes to match. '

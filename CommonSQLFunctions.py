@@ -32,11 +32,10 @@ def executeSQL(queryString, db=database):
     cursor = getConn(db=db).cursor()
     with cf.Spinner():
         cursor.execute(queryString)
-    cursor.commit()
     cursor.close()
 
-def executeSQLWithResults(query):
-    crsr = conn.cursor()
+def executeSQLWithResults(query, db=database):
+    crsr = getConn(db=db).cursor()
     query = 'SET NOCOUNT ON ' + query
     with cf.Spinner():
         crsr.execute(query)

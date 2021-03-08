@@ -40,4 +40,3 @@ def start():
 
             getMatchedWithUnmatched(sourceEntityTypeId, targetEntityTypeId, saveLocation, surrogateEntityTypeId)
 
-start()

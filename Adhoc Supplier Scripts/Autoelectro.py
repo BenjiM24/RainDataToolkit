@@ -4,7 +4,7 @@ import pandas as pd
 import CommonFunctions
 import CommonSQLFunctions
 import shutil
-
+from tqdm import tqdm
 
 masterImagesFolder = r'Z:\Rain Data\Supplier Work\Autoelectro\Master Images'
 masterBulletinsFolder = r'Z:\Rain Data\Supplier Work\Autoelectro\Master Bulletins'
@@ -43,9 +43,12 @@ def loadAutoelectroData(jobFolder):
 
 
     #get list of all image filenames
-    filenames = CommonFunctions.getFilenamesWithinFolder(masterImagesFolder)
+    masterImages = CommonFunctions.getFilePathInput('Enter the folder path for images:')
+    filenames = CommonFunctions.getFilenamesWithinFolder(masterImages)
     CommonSQLFunctions.insertListIntoDB(filenames, 'PaperCatalogueImport', 'ImageFiles', 'Autoelectro')
-    filenames = CommonFunctions.getFilenamesWithinFolder(masterBulletinsFolder)
+
+    masterBulletins = CommonFunctions.getFilePathInput('Enter the folder path for bulletins:')
+    filenames = CommonFunctions.getFilenamesWithinFolder(masterBulletins)
     CommonSQLFunctions.insertListIntoDB(filenames, 'PaperCatalogueImport', 'BulletinFiles', 'Autoelectro')
 
     CommonSQLFunctions.executeSQL('EXEC PaperCatalogueImport.Autoelectro.LoadIntoPaperCatalogueForLoadToCatMan;')
@@ -56,9 +59,14 @@ def mergeNewImagesIntoMaster(jobFolder):
 
     if (os.path.exists(imagesFolder)):
         print('MAM folder found in input. Merging images into Master Images folder.')
-        for filename in os.listdir(imagesFolder):
+        for filename in tqdm(os.listdir(imagesFolder)):
             if filename.endswith('.jpg') or filename.endswith('.bmp'):
-                shutil.copy(os.path.join(imagesFolder, filename), os.path.join(masterImagesFolder, filename))
+                src = os.path.join(imagesFolder, filename)
+                dest = os.path.join(masterImagesFolder, filename)
+
+                if os.path.isfile(dest):
+                    if os.stat(src).st_mtime > os.stat(dest).st_mtime > 1:
+                        shutil.copy(src, dest)
     else:
         print(f'{CommonFunctions.bcolors.WARNING}Images folder not found{CommonFunctions.bcolors.ENDC}')
 
@@ -67,7 +75,7 @@ def mergeNewDocumentsIntoMaster(jobFolder):
 
     if (os.path.exists(bulletinsFolder)):
         print('Packing info folder found in input. Merging documents into Master Images folder.')
-        for filename in os.listdir(bulletinsFolder):
+        for filename in tqdm(os.listdir(bulletinsFolder)):
             if filename.endswith('.pdf'):
                 shutil.copy(os.path.join(bulletinsFolder, filename), os.path.join(masterBulletinsFolder, filename))
 
