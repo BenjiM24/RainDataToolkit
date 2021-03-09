@@ -32,7 +32,7 @@ def executeSQL(queryString, db=database):
     cursor = getConn(db=db).cursor()
     with cf.Spinner():
         cursor.execute(queryString)
-    cursor.close()
+    cursor.commit()
 
 def executeSQLWithResults(query, db=database):
     crsr = getConn(db=db).cursor()
