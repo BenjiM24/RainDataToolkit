@@ -87,3 +87,5 @@ def start(saveLocation=None):
 
     print('Data ready:')
     input(saveLocation+'\\DATPackage')
+
+start()

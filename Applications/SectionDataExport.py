@@ -7,7 +7,10 @@ import CommonFunctions as cf
 import CommonSQLFunctions as csf
 import csv
 import zlib
+import shutil
 from tqdm import tqdm
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def createRequiredSubfolders(zipRequired, crossRefsrequired, saveLocation, supplierName, auditId):
 
@@ -26,7 +29,7 @@ def createRequiredSubfolders(zipRequired, crossRefsrequired, saveLocation, suppl
 
     return saveLocation
 
-def saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired):
+def saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired, csvPreviewFilesRequired):
     sections = []
     print('Attempting to save sections')
     pbar = tqdm(sectionCodes, position=0, leave=True)
@@ -38,7 +41,14 @@ def saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesReq
 
             # check results
             if excelFilesRequired:
-                cf.saveDataInExcel(saveLocation+'\\RainData\\', section, sectionData)
+                cf.saveDataInExcel(ROOT_DIR + '\\temp', section, sectionData)
+                shutil.move(ROOT_DIR + '\\temp\\' + section + '.xlsx',
+                            saveLocation + '\\RainData\\' + section + '.xlsx')
+
+            if csvPreviewFilesRequired:
+                sectionData.to_csv(ROOT_DIR + '\\temp\\' + section + '.csv', index=False)
+                shutil.move(ROOT_DIR + '\\temp\\' + section + '.csv', saveLocation + '\\RainData\\' + section + '.csv')
+
             if zipRequired:
                 sectionData.columns = ['ID',	'Manuf',	'Model',	'SubModel',	'ModelDesc',	'Years',
                                        'StartYr',	'EndYr',	'EngineSize',	'FuelType',	'ProductCode',	'Subpg',
@@ -112,6 +122,7 @@ def start():
     options = {
         1: 'Extract Audit Data',
         2: 'Generate Audit Reports',
+        3: 'Fast Preview Mode',
         '*': 'Run all of the above'
     }
 
@@ -123,7 +134,11 @@ def start():
 
     auditId = cf.inputRequest('Enter the audit ID:', 'int')
     saveLocation = cf.inputRequest('Enter the save location:', 'filepath')
-    sectionCodes = cf.inputRequest('Enter section codes if required (leave blank to extract all):')
+
+    if chosenOption == '3':
+        sectionCodes = csf.getListOfSectionsByAuditId(auditId)
+    else:
+        sectionCodes = cf.inputRequest('Enter section codes if required (leave blank to extract all):')
 
     if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
         sectionCodes = csf.getListOfSectionsByAuditId(auditId)
@@ -133,19 +148,26 @@ def start():
     if chosenOption == '1' or chosenOption == '*':
         zipRequired = cf.inputRequest('Do you require zip files? True/False', 'bool')
         excelFilesRequired = cf.inputRequest('Do you require excel files? True/False', 'bool')
+        csvPreviewFilesRequired = False
         crossRefsRequired = cf.inputRequest('Do you require cross refs? True/False', 'bool')
-    else:
+
+    if chosenOption == '3':
         zipRequired = False
         excelFilesRequired = False
+        csvPreviewFilesRequired = True
         crossRefsRequired = False
+
+    if chosenOption not in ['*', '1', '3']:
+        print('Invalid option selected.')
+        return
 
     saveLocation = createRequiredSubfolders(zipRequired, crossRefsRequired, saveLocation, supplierName, auditId)
 
-    if chosenOption == '1' or chosenOption == '*':
+    if chosenOption == '1' or chosenOption == '3' or chosenOption == '*':
         if sectionCodes is None or sectionCodes == '' or sectionCodes[0] == '':
             raise ValueError('No sections found. Has this audit been archived?')
 
-        saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired)
+        saveSections(auditId, sectionCodes, saveLocation, zipRequired, excelFilesRequired, csvPreviewFilesRequired)
 
     if chosenOption == '2' or chosenOption == '*':
         processReports(saveLocation, auditId, sectionCodes)

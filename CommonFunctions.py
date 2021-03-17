@@ -108,6 +108,7 @@ def getFilenamesWithinFolder(folder):
 def resizeImage(filePath):
     img = Image.open(filePath)
     new_img = img.resize((600, 400))
+    new_img = new_img.convert('RGB')
     new_img.save(filePath, "JPEG", optimize=True)
 
 def getTimeStamp():
