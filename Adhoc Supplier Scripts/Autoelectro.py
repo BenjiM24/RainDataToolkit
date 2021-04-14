@@ -43,19 +43,21 @@ def loadAutoelectroData(jobFolder):
 
 
     #get list of all image filenames
-    masterImages = CommonFunctions.getFilePathInput('Enter the folder path for images:')
+    masterImages = CommonFunctions.getFilePathInput('Enter the folder path for master images:')
     filenames = CommonFunctions.getFilenamesWithinFolder(masterImages)
     CommonSQLFunctions.insertListIntoDB(filenames, 'PaperCatalogueImport', 'ImageFiles', 'Autoelectro')
 
-    masterBulletins = CommonFunctions.getFilePathInput('Enter the folder path for bulletins:')
+    masterBulletins = CommonFunctions.getFilePathInput('Enter the folder path for master bulletins:')
     filenames = CommonFunctions.getFilenamesWithinFolder(masterBulletins)
     CommonSQLFunctions.insertListIntoDB(filenames, 'PaperCatalogueImport', 'BulletinFiles', 'Autoelectro')
+
+def runDataThrough(jobfolder):
 
     CommonSQLFunctions.executeSQL('EXEC PaperCatalogueImport.Autoelectro.LoadIntoPaperCatalogueForLoadToCatMan;')
     CommonSQLFunctions.executeSQL('EXEC CatalogueManager.dbo.PaperCatalogueKTypeImport @SupplierId = 4842;')
 
 def mergeNewImagesIntoMaster(jobFolder):
-    imagesFolder = jobFolder + '\\input\\MAM'
+    imagesFolder = CommonFunctions.getFilePathInput('Enter the folder path for input images:')
 
     if (os.path.exists(imagesFolder)):
         print('MAM folder found in input. Merging images into Master Images folder.')
@@ -71,10 +73,10 @@ def mergeNewImagesIntoMaster(jobFolder):
         print(f'{CommonFunctions.bcolors.WARNING}Images folder not found{CommonFunctions.bcolors.ENDC}')
 
 def mergeNewDocumentsIntoMaster(jobFolder):
-    bulletinsFolder = jobFolder + '\\Input\\packinginfo\\packinginfo'
+    bulletinsFolder = CommonFunctions.getFilePathInput('Enter the folder path for input bulletins:')
 
     if (os.path.exists(bulletinsFolder)):
-        print('Packing info folder found in input. Merging documents into Master Images folder.')
+        print('Packing info folder found in input. Merging documents into Master bulletins folder.')
         for filename in tqdm(os.listdir(bulletinsFolder)):
             if filename.endswith('.pdf'):
                 shutil.copy(os.path.join(bulletinsFolder, filename), os.path.join(masterBulletinsFolder, filename))
@@ -110,13 +112,14 @@ def start():
 
     while 1 == 1:
         options = {
-                   0: 'Merge new images & documents into master',
-                   1: 'Load input data into SQL',
-                   2: 'Run CatalogueManager cleansing modules',
-                   3: 'Push data into DAT template tables',
-                   4: 'Generate TecDoc quality reports',
-                   5: 'Export DAT Files',
-                   6: 'Generate Output Reports for Customer',
+                   1: 'Merge new images & documents into master',
+                   2: 'Load input data into SQL',
+                   3: 'Run data through SQL',
+                   4: 'Run CatalogueManager cleansing modules',
+                   5: 'Push data into DAT template tables',
+                   6: 'Generate TecDoc quality reports',
+                   7: 'Generate Output Reports for Customer',
+                   8: 'Export DAT Files',
                    '*': 'Run all of the above'
                    }
 
@@ -126,27 +129,30 @@ def start():
 
         chosenOption = input()
 
-        if chosenOption == '0' or chosenOption.lower() == '*':
+        if chosenOption == '1' or chosenOption.lower() == '*':
             mergeNewImagesIntoMaster(jobFolder)
             mergeNewDocumentsIntoMaster(jobFolder)
 
-        if chosenOption == '1' or chosenOption.lower() == '*':
+        if chosenOption == '2' or chosenOption.lower() == '*':
             loadAutoelectroData(jobFolder)
 
-        if chosenOption == '2' or chosenOption.lower() == '*':
-            CommonSQLFunctions.runModularCleanse(4842)
-
         if chosenOption == '3' or chosenOption.lower() == '*':
-            CommonSQLFunctions.loadCatalogueManagerIntoTecDocOutputTables(4842)
+            runDataThrough(jobFolder)
 
         if chosenOption == '4' or chosenOption.lower() == '*':
-            runAutoelectroReports(jobFolder)
+            CommonSQLFunctions.runModularCleanse(4842)
 
         if chosenOption == '5' or chosenOption.lower() == '*':
-            import Applications.DATFileExport as datExport
-            datExport.start(saveLocation=jobFolder + '\\Output')
+            CommonSQLFunctions.loadCatalogueManagerIntoTecDocOutputTables(4842)
 
         if chosenOption == '6' or chosenOption.lower() == '*':
+            runAutoelectroReports(jobFolder)
+
+        if chosenOption == '7' or chosenOption.lower() == '*':
             outputReports(jobFolder)
+
+        if chosenOption == '8' or chosenOption.lower() == '*':
+            import Applications.DATFileExport as datExport
+            datExport.start(saveLocation=jobFolder + '\\Output')
 
 start()

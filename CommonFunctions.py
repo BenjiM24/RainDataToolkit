@@ -17,17 +17,18 @@ from tqdm import tqdm
 def get_bool(prompt):
     while True:
         try:
-           return {"true": True,
-                   "y": True,
-                   "1": True,
-                   "yes": True,
-                   "t": True,
-                   "false": False,
-                   "n": False,
-                   "0": False,
-                   "no": False}[input(prompt).lower()]
+            return {"true": True,
+                    "y": True,
+                    "1": True,
+                    "yes": True,
+                    "t": True,
+                    "false": False,
+                    "n": False,
+                    "0": False,
+                    "no": False}[input(prompt).lower()]
         except KeyError:
-           print("Invalid input please enter True or False!")
+            print("Invalid input please enter True or False!")
+
 
 def getFilePathInput(requestMessage):
     jobFolder = ''
@@ -41,6 +42,7 @@ def getFilePathInput(requestMessage):
             requestFilePath = True
 
     return jobFolder
+
 
 def saveDataInExcel(saveLocation, filename, df):
     fileSavePath = saveLocation + '\\' + filename + '.xlsx'
@@ -72,6 +74,7 @@ def saveDataInExcel(saveLocation, filename, df):
     # Close the Pandas Excel writer and output the Excel file.
     writer.save()
 
+
 def inputRequest(parameterRequest, parameterType=None):
     returnValue = None
 
@@ -102,8 +105,10 @@ def inputRequest(parameterRequest, parameterType=None):
 
     return returnValue
 
+
 def getFilenamesWithinFolder(folder):
     return [f for f in listdir(folder) if isfile(join(folder, f))]
+
 
 def resizeImage(filePath):
     img = Image.open(filePath)
@@ -111,8 +116,10 @@ def resizeImage(filePath):
     new_img = new_img.convert('RGB')
     new_img.save(filePath, "JPEG", optimize=True)
 
+
 def getTimeStamp():
     return datetime.datetime.now().strftime('%d-%m-%Y %H%M%S')
+
 
 def df_column_uniquify(df):
     df_columns = df.columns
@@ -121,12 +128,13 @@ def df_column_uniquify(df):
         newitem = item
         counter = 0
         while any(newitem.lower() == val.lower() for val in new_columns):
-            #how many times has this already been added:
+            # how many times has this already been added:
             counter += 1
             newitem = "{}_{}".format(item, counter)
         new_columns.append(newitem.strip())
     df.columns = new_columns
     return df
+
 
 class bcolors:
     HEADER = '\033[95m'
@@ -139,14 +147,16 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 def get_col_widths(dataframe):
     # First we find the maximum length of the index column
-    #idx_max = max([len(str(s)) for s in dataframe.index.values] + [len(str(dataframe.index.name))])
+    # idx_max = max([len(str(s)) for s in dataframe.index.values] + [len(str(dataframe.index.name))])
     # Then, we concatenate this to the max of the lengths of column name and its values for each column, left to right
-    #return [idx_max] + [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
+    # return [idx_max] + [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
     return [max([len(str(s)) for s in dataframe[col].values] + [len(col)]) for col in dataframe.columns]
 
-def loadFlatFileIntoDF(folderFilepath, fileName, fileType, encoding= None):
+
+def loadFlatFileIntoDF(folderFilepath, fileName, fileType, encoding=None):
     inputFile = folderFilepath + '\\' + fileName + '.' + fileType
 
     separators = {
@@ -157,6 +167,8 @@ def loadFlatFileIntoDF(folderFilepath, fileName, fileType, encoding= None):
         return pd.read_csv(inputFile, delimiter=separators[fileType])
     else:
         return pd.read_csv(inputFile, delimiter=separators[fileType], encoding=encoding)
+
+
 class Spinner:
     busy = False
     delay = 0.1
