@@ -102,7 +102,7 @@ def outputReports(jobFolder):
                                                                f'{CommonFunctions.getTimeStamp()}', df)
 
 def start():
-    jobFolder = CommonFunctions.getFilePathInput('Please enter the job folder:')
+    jobFolder = CommonFunctions.getFilePathInput('Please enter the job folder (E.g NAS/AutoElectro/DR0421):')
 
     createRequiredSubfolders(jobFolder)
 
