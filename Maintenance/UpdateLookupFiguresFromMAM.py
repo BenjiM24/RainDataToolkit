@@ -11,7 +11,7 @@ import CommonSQLFunctions as csf
 list_of_files = glob.glob(r'Y:\SQL Backups\Weekly_VRM\*.bak') # * means all if need specific format then *.csv
 latest_file = max(list_of_files, key=os.path.getctime)
 
-latest_file = 'Z' + latest_file[1:]
+latest_file = 'Y' + latest_file[1:]
 processFile = cf.get_bool(f'Latest file is: {cf.bcolors.OKGREEN}{latest_file}.{cf.bcolors.ENDC}'
                           f'\nDo you wish to proceed?')
 query = csf.restoreDatabase('vrm', latest_file, 'VRM_Log', 'VRM_Data')
